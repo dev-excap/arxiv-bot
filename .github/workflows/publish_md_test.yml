@@ -20,6 +20,9 @@ jobs:
       file-exists: ${{steps.file-check.outputs.file_exists}}
     steps:
     - uses: actions/checkout@v4
+    - name: Debug: Print Workflow Run ID
+      run: echo "Triggered from Run ID: ${{ github.event.workflow_run.id }}"
+
     - name: Download artifact
       id: download-artifact
       uses: actions/download-artifact@v4
