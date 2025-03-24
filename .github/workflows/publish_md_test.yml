@@ -7,7 +7,6 @@ on:
     types:
       - completed
 
-
 permissions: write-all
 
 jobs:
@@ -17,7 +16,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     outputs:
-      file-exists: ${{steps.file-check.outputs.file_exists}}
+      file-exists: ${{ steps.file-check.outputs.file_exists }}
     steps:
     - uses: actions/checkout@v4
     # - name: Debug: Print Workflow Run ID
@@ -45,8 +44,8 @@ jobs:
       uses: wranders/markdown-to-pages-action@v0.1
       if: steps.check_files.outputs.files_exists == 'true'
       with:
-       token: ${{ secrets.GITHUB_TOKEN }}
-       file: output.md
+        token: ${{ secrets.GITHUB_TOKEN }}
+        file: output.md
     - uses: actions/upload-pages-artifact@v3
       if: steps.check_files.outputs.files_exists == 'true'
       with:
