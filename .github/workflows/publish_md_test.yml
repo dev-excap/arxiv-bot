@@ -19,7 +19,6 @@ jobs:
       file-exists: ${{ steps.file-check.outputs.file_exists }}
     steps:
     - uses: actions/checkout@v4
-    
     - uses: actions/download-artifact@v4
       with:
         name: arxiv-scanner-outputs
