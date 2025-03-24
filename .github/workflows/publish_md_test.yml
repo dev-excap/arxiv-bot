@@ -28,6 +28,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: arxiv-scanner-outputs
+    - name: List contents of downloaded directory
+      run: ls -R ./path/to/downloaded/folder
     - name: Display structure of downloaded files
       run: ls -R
     - name: Check for output.md
