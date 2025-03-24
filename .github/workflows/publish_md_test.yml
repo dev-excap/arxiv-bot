@@ -7,7 +7,10 @@ on:
     types:
       - completed
 
-permissions: write-all
+permissions:
+  contents: read
+  actions: read
+  pages: write
 
 jobs:
   build:
@@ -19,6 +22,32 @@ jobs:
       file-exists: ${{ steps.file-check.outputs.file_exists }}
     steps:
     - uses: actions/checkout@v4
+    - name: Debug Workflow Run Information
+      run: |
+        echo "Workflow Run ID: ${{ github.event.workflow_run.id }}"
+        echo "Repository: ${{ github.repository }}"
+        echo "Ref: ${{ github.ref }}"
+    - name: List Recent Artifacts
+      env:
+        GH_TOKEN: ${{ secrets.GH_PAT }}
+      run: |
+        gh api -H "Accept: application/vnd.github+json" \
+          /repos/dev-excap/arxiv-bot/actions/artifacts \
+          | jq '.artifacts[0]'
+    
+    - name: Download Specific Artifact
+      env:
+        GH_TOKEN: ${{ secrets.GH_PAT }}
+      run: |
+        ARTIFACT_ID=$(gh api -H "Accept: application/vnd.github+json" \
+          /repos/dev-excap/arxiv-bot/actions/artifacts \
+          | jq '.artifacts[0].id')
+        
+        gh api -H "Accept: application/vnd.github+json" \
+          /repos/dev-excap/arxiv-bot/actions/artifacts/${ARTIFACT_ID}/zip \
+          > artifact.zip
+        
+        unzip artifact.zip
     - uses: actions/download-artifact@v4
       with:
         name: arxiv-scanner-outputs
