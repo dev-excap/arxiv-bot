@@ -20,14 +20,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # ✅ Download artifact by name
-    - name: Download artifact from previous workflow run
-      id: download-artifact
+    - name: Download artifact
       uses: actions/download-artifact@v4
       with:
         name: arxiv-scanner-outputs
-        github-token: ${{ secrets.GH_PAT }}
-
+        path: .
+        github-token: ${{ secrets.GITHUB_TOKEN }}  # Auto-authenticated token
 
     # ✅ Display downloaded files
     - name: Display structure of downloaded files
