@@ -31,8 +31,8 @@ jobs:
         repository: dev-excap/arxiv-bot  # Your repository name
         run-id: ${{ github.event.workflow_run.id }}  # The run ID of the previous workflow that uploaded the artifact
 
-    - name: List contents of downloaded directory
-      run: ls -R ./path/to/downloaded/folder
+    # - name: List contents of downloaded directory
+    #   run: ls -R ./path/to/downloaded/folder
     - name: Display structure of downloaded files
       run: ls -R
     - name: Check for output.md
