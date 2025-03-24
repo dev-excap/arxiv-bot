@@ -23,15 +23,14 @@ jobs:
     # - name: Debug: Print Workflow Run ID
     #   run: echo "Triggered from Run ID: ${{ github.event.workflow_run.id }}"
 
-     - name: Download artifact from previous workflow run
-        id: download-artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: arxiv-scanner-outputs  # The artifact name that you uploaded
-          github-token: ${{ secrets.GH_PAT }}  # Your GitHub Personal Access Token
-          repository: dev-excap/arxiv-bot  # Your repository name
-          run-id: ${{ github.event.workflow_run.id }}  # The run ID of the previous workflow that uploaded the artifact
-
+    - name: Download artifact from previous workflow run
+      id: download-artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: arxiv-scanner-outputs  # The artifact name that you uploaded
+        github-token: ${{ secrets.GH_PAT }}  # Your GitHub Personal Access Token
+        repository: dev-excap/arxiv-bot  # Your repository name
+        run-id: ${{ github.event.workflow_run.id }}  # The run ID of the previous workflow that uploaded the artifact
 
     - name: List contents of downloaded directory
       run: ls -R ./path/to/downloaded/folder
