@@ -6,8 +6,11 @@ on:
     workflows: ["Run daily arxiv"]
     types:
       - completed
-permissions: write-all
 
+permissions:
+  contents: read
+  actions: read
+  pages: write
 
 jobs:
   build:
@@ -15,59 +18,56 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    outputs:
-      file-exists: ${{ steps.file-check.outputs.file_exists }}
     steps:
     - uses: actions/checkout@v4
-    - name: Debug Workflow Run Information
-      run: |
-        echo "Workflow Run ID: ${{ github.event.workflow_run.id }}"
-        echo "Repository: ${{ github.repository }}"
-        echo "Ref: ${{ github.ref }}"
-    - name: List Recent Artifacts
-      env:
-        GH_TOKEN: ${{ secrets.GH_PAT }}
-      run: |
-        gh api -H "Accept: application/vnd.github+json" \
-          /repos/dev-excap/arxiv-bot/actions/artifacts \
-          | jq '.artifacts[0]'
     
-    - name: Download Specific Artifact
+    - name: Get Latest Artifact ID and Download
       env:
         GH_TOKEN: ${{ secrets.GH_PAT }}
       run: |
-        ARTIFACT_ID=$(gh api -H "Accept: application/vnd.github+json" \
-          /repos/dev-excap/arxiv-bot/actions/artifacts \
-          | jq '.artifacts[0].id')
+        # Fetch the latest artifact for the specified workflow
+        WORKFLOW_ID=$(gh api -H "Accept: application/vnd.github+json" \
+          /repos/dev-excap/arxiv-bot/actions/workflows \
+          | jq '.workflows[] | select(.name == "Run daily arxiv") | .id')
         
+        # Get the latest artifact from the specific workflow run
+        ARTIFACT_ID=$(gh api -H "Accept: application/vnd.github+json" \
+          "/repos/dev-excap/arxiv-bot/actions/workflows/${WORKFLOW_ID}/runs" \
+          | jq '.workflow_runs[0].id as $run_id | 
+                 .workflow_runs[0].artifacts_url | 
+                 . + "?per_page=1" | 
+                 capture("repos/(?<repo>[^/]+/[^/]+)/actions") | 
+                 .repo | 
+                 [inputs] | 
+                 first' -r)
+        
+        # Download the artifact
         gh api -H "Accept: application/vnd.github+json" \
-          /repos/dev-excap/arxiv-bot/actions/artifacts/${ARTIFACT_ID}/zip \
+          "/repos/dev-excap/arxiv-bot/actions/artifacts/${ARTIFACT_ID}/zip" \
           > artifact.zip
         
+        # Unzip and list contents
         unzip artifact.zip
-    - uses: actions/download-artifact@v4
-      with:
-        name: arxiv-scanner-outputs
-        github-token: ${{ secrets.GH_PAT }} # token with actions:read permissions on target repo
+        ls -la
 
-    # ✅ Display downloaded files
-    - name: Display structure of downloaded files
-      run: ls -R
     - name: Check for output.md
       id: check_files
       uses: andstor/file-existence-action@v3
       with:
         files: output.md
+
     - name: Convert output.md to pages
       uses: wranders/markdown-to-pages-action@v0.1
       if: steps.check_files.outputs.files_exists == 'true'
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         file: output.md
+
     - uses: actions/upload-pages-artifact@v3
       if: steps.check_files.outputs.files_exists == 'true'
       with:
         path: dist
+
     - uses: actions/deploy-pages@v4
       if: steps.check_files.outputs.files_exists == 'true'
       id: deployment
