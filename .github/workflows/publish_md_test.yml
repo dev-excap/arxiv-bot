@@ -6,11 +6,8 @@ on:
     workflows: ["Run daily arxiv"]
     types:
       - completed
+permissions: write-all
 
-permissions:
-  contents: read
-  actions: read
-  pages: write
 
 jobs:
   build:
