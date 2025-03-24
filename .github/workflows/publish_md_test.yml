@@ -24,8 +24,8 @@ jobs:
       with:
         name: arxiv-scanner-outputs
         github-token: ${{ secrets.GH_PAT }} # token with actions:read permissions on target repo
-        repository: actions/toolkit
-        run-id: 1234
+        repository: dev-excap/arxiv-bot
+        run-id: ${{ github.event.workflow_run.id }}
 
     # ✅ Display downloaded files
     - name: Display structure of downloaded files
