@@ -25,7 +25,7 @@ jobs:
 
     - name: Download artifact
       id: download-artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       with:
         name: arxiv-scanner-outputs
     - name: List contents of downloaded directory
